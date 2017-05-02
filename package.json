@@ -1,0 +1,22 @@
+{
+  "name": "eye_care_bot",
+  "version": "1.0.0",
+  "description": "Telegram bot that send notifications about eyes exercise",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "micro-bot -d ${URL}"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "eyes",
+    "exercise",
+    "health"
+  ],
+  "author": "Adara Belaya",
+  "license": "ISC",
+  "dependencies": {
+    "micro-bot": "^1.2.0"
+  }
+}
