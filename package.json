@@ -18,5 +18,8 @@
   "license": "ISC",
   "dependencies": {
     "micro-bot": "^1.2.0"
-  }
+},
+"engines": {
+  "node": ">= 7.6.0"
+}
 }
