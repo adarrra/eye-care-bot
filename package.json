@@ -17,9 +17,10 @@
   "author": "Adara Belaya",
   "license": "ISC",
   "dependencies": {
-    "micro-bot": "^1.2.0"
-},
-"engines": {
-  "node": ">= 7.6.0"
-}
+    "micro-bot": "^1.2.0",
+    "node-cron": "^1.1.3"
+  },
+  "engines": {
+    "node": ">= 7.6.0"
+  }
 }

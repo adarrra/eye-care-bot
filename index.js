@@ -3,6 +3,7 @@
 const {Markup} = require('micro-bot')
 const Telegraf = require('telegraf')
 const msg = require('./messages')
+const cron = require('node-cron')
 
 const app = new Telegraf(process.env.BOT_TOKEN) // was const app = new Composer()
 //app.set('port', (process.env.PORT || 5000))
@@ -25,23 +26,32 @@ const myKeyboard = [
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
 
 
-let chat_id;
 app.hears('d', (ctx) => {
     ctx.reply('debug')
-    chat_id = ctx.chat.id
-    console.log(ctx.chat);
+    console.log(ctx.chat.id);
 
 })
 
-// next some cron) 
+let chat_id = process.env.TEL_CHAT_ID_ME
+
 // setTimeout(function () {
 //     app.telegram.sendMessage(chat_id, 'aha! I am alive')
 //     console.log(app.telegram.sendMessage);
 // }, 2000);
 
+// cron.schedule('* * * * *', function(){
+//   console.log('running a task every minute');
+//   app.telegram.sendMessage(chat_id, 'minute')
+// });
+
 
 app.hears(/\d\d:\d\d/, (ctx) => { // maybe ease regex
-    if (/^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(ctx.message.text)) {
+    let time = ctx.message.text.match(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
+
+    if (time) {
+        cron.schedule(`${time[2]} ${time[1]} * * *`, function(){
+          app.telegram.sendMessage(chat_id, 'eye notification')
+        });
         //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
         return ctx.reply('Time setted! Last question: your city (for proper timezone) e.g. Minsk')
     } else {
