@@ -3,10 +3,12 @@
 const {Markup} = require('micro-bot')
 const Telegraf = require('telegraf')
 const msg = require('./messages')
-const cron = require('node-cron')
+const CronJob = require('cron').CronJob
+const moment = require('moment-timezone')
 
 const app = new Telegraf(process.env.BOT_TOKEN) // was const app = new Composer()
 //app.set('port', (process.env.PORT || 5000))
+// mongoose.connect(process.env.DATABASE);
 
 app.command('start', (ctx) =>
     ctx.reply(msg.start)
@@ -23,6 +25,54 @@ const myKeyboard = [
     ['0', ':']
 ];
 
+let chat_id = process.env.TEL_CHAT_ID_ME
+let time2db;
+let zone2db;
+let userAnswerOnLocation; // need more handling
+
+
+app.hears(/\d\d:\d\d/, (ctx) => { // maybe ease regex
+    let time = ctx.message.text.match(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
+
+    if (time) {
+        time2db = time
+        //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
+        userAnswerOnLocation = true;
+        // if user has no timezone yet:
+        return ctx.reply('Time setted! Last question: your city (for proper timezone) e.g. Minsk')
+    } else {
+        return ctx.reply('Oh no! I can\'t recognize time. Please check format  HH:MM e.g. 06:30 or 18:00')
+    }
+    console.log(ctx.update.message.text);
+})
+
+app.on('message', (ctx) => {
+    if (userAnswerOnLocation) {
+        // but I don't understand what time it use itself
+        zone2db = moment.tz.names().find(z => {
+                 if(z.includes(ctx.message.text)){return z}} )
+                 
+        if (zone2db) {
+            userAnswerOnLocation = false;
+            new CronJob({
+              cronTime: `${time2db[2]} ${time2db[1]} * * *`,
+              onTick: function() {
+                app.telegram.sendMessage(chat_id, 'eye notification')
+              },
+              start: true,  
+              timeZone: zone2db
+            });
+            return ctx.reply(zone2db + ' setted')
+        } else {
+            return ctx.reply('Oh no! I can\'t recognize location. Please use latin e.g. Minsk')
+        }
+    }
+})
+
+
+
+
+app.on('sticker', (ctx) => ctx.reply('👍'))
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
 
 
@@ -31,36 +81,6 @@ app.hears('d', (ctx) => {
     console.log(ctx.chat.id);
 
 })
-
-let chat_id = process.env.TEL_CHAT_ID_ME
-
-// setTimeout(function () {
-//     app.telegram.sendMessage(chat_id, 'aha! I am alive')
-//     console.log(app.telegram.sendMessage);
-// }, 2000);
-
-// cron.schedule('* * * * *', function(){
-//   console.log('running a task every minute');
-//   app.telegram.sendMessage(chat_id, 'minute')
-// });
-
-
-app.hears(/\d\d:\d\d/, (ctx) => { // maybe ease regex
-    let time = ctx.message.text.match(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
-
-    if (time) {
-        cron.schedule(`${time[2]} ${time[1]} * * *`, function(){
-          app.telegram.sendMessage(chat_id, 'eye notification')
-        });
-        //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
-        return ctx.reply('Time setted! Last question: your city (for proper timezone) e.g. Minsk')
-    } else {
-        return ctx.reply('Oh no! I can\'t recognize time. Please check format  HH:MM e.g. 06:30 or 18:00')
-    }
-    console.log(ctx.update.message.text);
-})
-
-app.on('sticker', (ctx) => ctx.reply('👍'))
 //MVP!!!
 
 // TelegrafContext {
@@ -102,5 +122,7 @@ app.on('sticker', (ctx) => ctx.reply('👍'))
 // bot.hears(/\/\w+/, (ctx) => {
 //   ctx.reply('If you are confused type /help');
 // });
+
+// mayb customize keyboard with commands that need often
 
 module.exports = app
