@@ -5,10 +5,20 @@ const Telegraf = require('telegraf')
 const msg = require('./messages')
 const CronJob = require('cron').CronJob
 const moment = require('moment-timezone')
+const monk = require('monk')
+// mongoose.connect(process.env.DATABASE);
+const dbUrl = 'localhost:27017/testUsers';
+const db = monk(dbUrl);
+const users = db.get('users');
 
 const app = new Telegraf(process.env.BOT_TOKEN) // was const app = new Composer()
+// when to db.close()?
+db.then(() => {
+  console.log('db connected')
+})
+
 //app.set('port', (process.env.PORT || 5000))
-// mongoose.connect(process.env.DATABASE);
+
 
 app.command('start', (ctx) =>
     ctx.reply(msg.start)
@@ -36,22 +46,44 @@ app.hears(/\d\d:\d\d/, (ctx) => { // maybe ease regex
 
     if (time) {
         time2db = time
-        //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
-        userAnswerOnLocation = true;
-        // if user has no timezone yet:
-        return ctx.reply('Time setted! Last question: your city (for proper timezone) e.g. Minsk')
+        users.findOne({chat_id: ctx.chat.id}).then(user => {
+            if(user) { // and user has location
+                users.update({chat_id: ctx.chat.id}, { $push: { notifications: `${time2db[1]}:${time2db[2]}`} })
+            } else {
+                // insert doc with chat id, ask and set waitLocation, when getLocation => add. But handle above
+                userAnswerOnLocation = true;
+                //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
+                return ctx.reply('It\'s nearly done! Last question: your city (for proper timezone) e.g. Minsk')
+            }
+        })
     } else {
         return ctx.reply('Oh no! I can\'t recognize time. Please check format  HH:MM e.g. 06:30 or 18:00')
     }
-    console.log(ctx.update.message.text);
 })
 
+app.on('sticker', (ctx) => ctx.reply('👍'))
+app.hears('hi', (ctx) => ctx.reply('Hey there!'))
+app.hears('d', (ctx) => {
+    ctx.reply('debug')
+    console.log(ctx.chat.id);
+})
+
+app.hears('db', (ctx) => {
+    users.find({}).then((users) => {
+        console.log('users from db: ', users);
+        ctx.reply(users)
+    })
+})
+
+
+
+// when I put app.hears after this they not work- why?
 app.on('message', (ctx) => {
     if (userAnswerOnLocation) {
         // but I don't understand what time it use itself
         zone2db = moment.tz.names().find(z => {
                  if(z.includes(ctx.message.text)){return z}} )
-                 
+
         if (zone2db) {
             userAnswerOnLocation = false;
             new CronJob({
@@ -59,7 +91,7 @@ app.on('message', (ctx) => {
               onTick: function() {
                 app.telegram.sendMessage(chat_id, 'eye notification')
               },
-              start: true,  
+              start: true,
               timeZone: zone2db
             });
             return ctx.reply(zone2db + ' setted')
@@ -69,18 +101,6 @@ app.on('message', (ctx) => {
     }
 })
 
-
-
-
-app.on('sticker', (ctx) => ctx.reply('👍'))
-app.hears('hi', (ctx) => ctx.reply('Hey there!'))
-
-
-app.hears('d', (ctx) => {
-    ctx.reply('debug')
-    console.log(ctx.chat.id);
-
-})
 //MVP!!!
 
 // TelegrafContext {
@@ -124,5 +144,14 @@ app.hears('d', (ctx) => {
 // });
 
 // mayb customize keyboard with commands that need often
+
+
+// db schema:
+// {
+//     chat_id: int
+//     notifications: ['12:30, 15:40']
+//     timezone: 'Europe/Minsk'
+//     waitLocation: false
+// }
 
 module.exports = app
