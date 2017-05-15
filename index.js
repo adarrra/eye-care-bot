@@ -15,6 +15,16 @@ const app = new Telegraf(process.env.BOT_TOKEN) // was const app = new Composer(
 // when to db.close()?
 db.then(() => {
   console.log('db connected')
+  users.find({}).each((user, {close, pause, resume}) => {
+  // the users are streaming here
+  // call `close()` to stop the stream
+    user.notifications.forEach(time => {
+        setCronJob(time, zone2db);
+    });
+    }).then(() => {
+      console.log('hope it is setted');
+    })
+  
 })
 
 //app.set('port', (process.env.PORT || 5000))
@@ -38,22 +48,29 @@ const myKeyboard = [
 let chat_id = process.env.TEL_CHAT_ID_ME
 let time2db;
 let zone2db;
-let userAnswerOnLocation; // need more handling
-
 
 app.hears(/\d\d:\d\d/, (ctx) => { // maybe ease regex
     let time = ctx.message.text.match(/^([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/)
 
     if (time) {
-        time2db = time
+        time2db = {h: time[1] , m: time[2]}
+        console.log(time);
         users.findOne({chat_id: ctx.chat.id}).then(user => {
-            if(user) { // and user has location
-                users.update({chat_id: ctx.chat.id}, { $push: { notifications: `${time2db[1]}:${time2db[2]}`} })
+            if(user) { 
+                users.update({chat_id: ctx.chat.id}, { $push: { notifications: time2db }})
+                if (!user.timezone) {
+                    return ctx.reply(msg.askLocation)
+                } else {
+                    setCronJob(time2db, user.timezone)
+                }
             } else {
-                // insert doc with chat id, ask and set waitLocation, when getLocation => add. But handle above
-                userAnswerOnLocation = true;
+                users.insert( {
+                    chat_id: ctx.chat.id,
+                    notifications: [time2db],
+                    waitLocation: true
+                });
                 //return ctx.reply(msg.askLocation, Markup.keyboard([Markup.locationRequestButton('Send contact')]))
-                return ctx.reply('It\'s nearly done! Last question: your city (for proper timezone) e.g. Minsk')
+                return ctx.reply(msg.askLocation)
             }
         })
     } else {
@@ -78,28 +95,50 @@ app.hears('db', (ctx) => {
 
 
 // when I put app.hears after this they not work- why?
+// what time it use itself
 app.on('message', (ctx) => {
-    if (userAnswerOnLocation) {
-        // but I don't understand what time it use itself
-        zone2db = moment.tz.names().find(z => {
-                 if(z.includes(ctx.message.text)){return z}} )
+    users.findOne({chat_id: ctx.chat.id}).then(user => {
+        if (user && user.waitLocation) {
+            zone2db = moment.tz.names().find(z => {
+                // stricter checking needed
+                     if(z.includes(ctx.message.text)){
+                         return z
+                     }
+                 })
 
-        if (zone2db) {
-            userAnswerOnLocation = false;
-            new CronJob({
-              cronTime: `${time2db[2]} ${time2db[1]} * * *`,
-              onTick: function() {
-                app.telegram.sendMessage(chat_id, 'eye notification')
-              },
-              start: true,
-              timeZone: zone2db
-            });
-            return ctx.reply(zone2db + ' setted')
-        } else {
-            return ctx.reply('Oh no! I can\'t recognize location. Please use latin e.g. Minsk')
+            if (zone2db) {
+                // how can user update location?)
+                users.update(
+                    {chat_id: ctx.chat.id},
+                    {$set: {
+                        waitLocation: false, 
+                        timezone: zone2db
+                        }
+                    }
+                )
+                user.notifications.forEach(time => {
+                    setCronJob(time, zone2db)
+                });
+
+                return ctx.reply(`${time.h}:${time.m} setted`)
+            } else {
+                return ctx.reply('Oh no! I can\'t recognize location. Please use latin e.g. Minsk')
+            }
+            
         }
-    }
+    })
 })
+
+function setCronJob(time, tz) {
+    new CronJob({
+      cronTime: `${time.m} ${time.h} * * *`,
+      onTick: function() {
+        app.telegram.sendMessage(chat_id, 'eye notification')
+      },
+      start: true,
+      timeZone: tz
+    });
+}
 
 //MVP!!!
 
@@ -149,7 +188,7 @@ app.on('message', (ctx) => {
 // db schema:
 // {
 //     chat_id: int
-//     notifications: ['12:30, 15:40']
+//     notifications: [{h:12, m:30}, {h:17, m:0}]
 //     timezone: 'Europe/Minsk'
 //     waitLocation: false
 // }
