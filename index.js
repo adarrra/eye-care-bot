@@ -159,12 +159,15 @@ function updTz(zone, user) {
                 timezone: tz
                 }
             }
-        );
-        app.telegram.sendMessage(user.chat_id, `${tz} setted`);
-        // user.notifications.forEach(time => {
-        //     // you should update all jobs for this user !!!
-        //     setCronJob(time, zone2db);
-        // });
+        )
+        .then(result => {
+            let resMsg = result.nModified ? `${tz} setted` : 'Ops! Something went wrong';
+            app.telegram.sendMessage(user.chat_id, `${tz} setted`);
+            // user.notifications.forEach(time => {
+            //     // you should update all jobs for this user !!!
+            //     setCronJob(time, zone2db);
+            // });
+        });
     } else {
         app.telegram.sendMessage(user.chat_id, msg.cantRecongnizeLocation);
     }
@@ -190,20 +193,6 @@ function setCronJob(chat_id, time, tz) {
 // /rm <HH:MM> or Key - rm notification
 // /ls - list notifications
 
-// how to cancel cron job
-// in future - cancel on weekends
-// with inlintKeybord done or postopne for 15,30,45,60 (as skeddy buttons) or fck it
-// add emojis for eternal beauty
-
-// any - you next notification is (time , not setted) - to change it use command /setted
-// use command advise
-// bot.hears(/\/\w+/, (ctx) => {
-//   ctx.reply('If you are confused type /help');
-// });
-
-// mayb customize keyboard with commands that need often
-
-
 // db schema:
 // {
 //     chat_id: int
@@ -216,9 +205,11 @@ function setCronJob(chat_id, time, tz) {
     - beauty help and start messages
     - stop cron jobs when tz changes
     - try to deploy, check timezone correctness
-    - postpone btn
+    - postpone btn - done/postpone/skip
     - weekends settings
     - split somehow and prettify for less spaghettiness
+    - tests espec. for e_tz
+    - add emojis for eternal beauty
 
 */
 
