@@ -14,6 +14,7 @@ const users = db.get('users');
 const app = new Telegraf(process.env.BOT_TOKEN); // was const app = new Composer()
 // when to db.close()?
 let cronJobHash = new Map();
+
 db.then(() => {
     console.log('db connected');
     users.find({}).each((user, {close, pause, resume}) => {
@@ -29,13 +30,6 @@ db.then(() => {
 });
 
 // app.set('port', (process.env.PORT || 5000))
-
-const myKeyboard = [
-    ['7', '8', '9'],
-    ['4', '5', '6'],
-    ['1', '2', '3'],
-    ['0', ':']
-];
 
 function getJobId(chat_id, fulltime) {
     return `${chat_id}${fulltime}`;
@@ -77,13 +71,6 @@ app.hears(/^\d\d/, ctx => {
 
 app.on('sticker', ctx => ctx.reply('👍'));
 app.hears(/(hi)|(hey)/i, ctx => ctx.reply('Hey there!'));
-app.hears('d', ctx => {
-    const replyOptions = Markup.inlineKeyboard([
-        Markup.urlButton('❤️', 'http://telegraf.js.org'),
-        Markup.callbackButton('Delele', 'delete')
-    ]).extra();
-    ctx.telegram.sendMessage(ctx.from.id, 'ff', replyOptions);
-});
 
 app.command('start', ctx =>
     ctx.reply(msg.start)
@@ -144,18 +131,6 @@ app.command('help', ctx =>
 
 );
 
-
-app.on('message', ctx => {
-    users.findOne({chat_id: ctx.chat.id})
-    .then(user => {
-        if (user && user.waitLocation) {
-            updTz(ctx.message.text, user);
-        } else {
-            ctx.reply('If you are confused type /help');
-        }
-    });
-});
-
 // maybe we can rm waitLocation and use some callback query?
 function updTz(zone, user) {
     let tz = moment.tz.names().find(z => {
@@ -186,13 +161,43 @@ function updTz(zone, user) {
     }
 }
 
+const notifyOpts= Markup.inlineKeyboard([
+    [
+        Markup.callbackButton('Done', 'onDone'),
+        Markup.callbackButton('Skip', 'onSkip')
+    ],
+    [   
+        Markup.callbackButton('Postpone 5', 'onPostpone5'),
+        Markup.callbackButton('Postpone 10', 'onPostpone10'),
+        Markup.callbackButton('Postpone 30', 'onPostpone30'),
+        Markup.callbackButton('Postpone 60', 'onPostpone60'),
+    ]
+]).extra();
+
+
+app.action('onDone', ctx =>  ctx.reply('👍'))
+app.action('onSkip', ctx =>  ctx.reply('😞'))
+app.action(/^onPostpone/, ctx =>  {
+    let minutes = parseInt(ctx.callbackQuery.data.match(/\d+/)[0]);
+    // the problem if script stopped it will not be triggered, write to bd?
+    users.findOne({chat_id: ctx.chat.id}).then(user => {
+        let time = moment().tz(user.timezone).add(minutes, 'm');
+        console.log(time);
+        setCronJob(user.chat_id, time, user.timezone)
+    })
+})
+
+app.hears('q', ctx => {
+    app.telegram.sendMessage(ctx.from.id, 'Let\'s do some eyes exercises!', notifyOpts);
+});
+
 function setCronJob(chat_id, time, tz) {
+    let cronTime = moment.isMoment(time) ? time.toDate() : `${time.m} ${time.h} * * *`;
     // for weekdays only * * * * 1-5
     let job = new CronJob({
-        cronTime: `${time.m} ${time.h} * * *`,
+        cronTime: cronTime,
         onTick: function () {
-            app.telegram.sendMessage(chat_id, 'eye notification');
-        //       reply with callback btn - done, postpone, skip
+            app.telegram.sendMessage(chat_id, 'Let\'s do some eyes exercises!', notifyOpts);
         },
         start: true,
         timeZone: tz
@@ -205,6 +210,17 @@ function stopJob(chat_id, fulltime) {
         cronJobHash.get(getJobId(chat_id, fulltime)).stop();
     }
 }
+
+app.on('message', ctx => {
+    users.findOne({chat_id: ctx.chat.id})
+    .then(user => {
+        if (user && user.waitLocation) {
+            updTz(ctx.message.text, user);
+        } else {
+            ctx.reply('If you are confused type /help');
+        }
+    });
+});
 
 // MVP!!!
 
@@ -225,10 +241,12 @@ function stopJob(chat_id, fulltime) {
     - show help msg on first setup, commands tip with args?
     - try to deploy, check timezone correctness
     - tests espec. for e_tz
-    - postpone btn - done/postpone/skip
+    - write temp notifications to bd?
+    - send location by btn
     - weekends settings
     - split somehow and prettify for less spaghettiness
-    - add emojis for eternal beauty
+    - add emojis for eternal beauty (random happy smiles on done)
+    - maybe work with time through moment only?
 
 */
 
