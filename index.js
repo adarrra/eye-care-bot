@@ -37,8 +37,8 @@ const myKeyboard = [
     ['0', ':']
 ];
 
-function getJobId(chat_id, time) {
-    return `${chat_id}${time.full}`;
+function getJobId(chat_id, fulltime) {
+    return `${chat_id}${fulltime}`;
 }
 
 
@@ -108,7 +108,7 @@ app.command('rm', ctx => {
             users.update({chat_id: ctx.chat.id}, {$pull: {notifications: {full: time[0]}}})
             .then(result => {
                 let resultMsg = result.nModified ? `${time[0]} removed` : 'Ops! Notification not found';
-                cronJobHash.get(getJobId(user.chat_id, {full: time[0]})).stop();
+                stopJob(user.chat_id, time[0]);
                 app.telegram.sendMessage(user.chat_id, resultMsg)
             })
             .catch (() => {
@@ -176,10 +176,10 @@ function updTz(zone, user) {
         .then(result => {
             let resMsg = result.nModified ? `${tz} setted` : 'Ops! Something went wrong';
             app.telegram.sendMessage(user.chat_id, `${tz} setted`);
-            // user.notifications.forEach(time => {
-            //     // you should update all jobs for this user !!!
-            //     setCronJob(time, zone2db);
-            // });
+            user.notifications.forEach(time => {
+                stopJob(user.chat_id, time.full);
+                setCronJob(user.chat_id, time, tz);
+            });
         });
     } else {
         app.telegram.sendMessage(user.chat_id, msg.cantRecongnizeLocation);
@@ -197,7 +197,13 @@ function setCronJob(chat_id, time, tz) {
         start: true,
         timeZone: tz
     });
-    cronJobHash.set(getJobId(chat_id, time), job);
+    cronJobHash.set(getJobId(chat_id, time.full), job);
+}
+
+function stopJob(chat_id, fulltime) {
+    if (cronJobHash.has(getJobId(chat_id, fulltime))) {
+        cronJobHash.get(getJobId(chat_id, fulltime)).stop();
+    }
 }
 
 // MVP!!!
@@ -216,13 +222,12 @@ function setCronJob(chat_id, time, tz) {
 // }
 
 /* TODO:
-    - show help msg on first setup
-    - stop cron jobs when tz changes
+    - show help msg on first setup, commands tip with args?
     - try to deploy, check timezone correctness
+    - tests espec. for e_tz
     - postpone btn - done/postpone/skip
     - weekends settings
     - split somehow and prettify for less spaghettiness
-    - tests espec. for e_tz
     - add emojis for eternal beauty
 
 */
