@@ -6,6 +6,7 @@ const msg = require('./messages');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
 const monk = require('monk');
+const randray = require('randray');
 // mongoose.connect(process.env.DATABASE);
 const dbUrl = 'localhost:27017/testUsers';
 const db = monk(dbUrl);
@@ -175,8 +176,8 @@ const notifyOpts= Markup.inlineKeyboard([
 ]).extra();
 
 
-app.action('onDone', ctx =>  ctx.reply('👍'))
-app.action('onSkip', ctx =>  ctx.reply('😞'))
+app.action('onDone', ctx =>  ctx.reply(randray(positiveSmiles)))
+app.action('onSkip', ctx =>  ctx.reply(randray(negativeSmiles)))
 app.action(/^onPostpone/, ctx =>  {
     let minutes = parseInt(ctx.callbackQuery.data.match(/\d+/)[0]);
     // the problem if script stopped it will not be triggered, write to bd?
@@ -221,6 +222,9 @@ app.on('message', ctx => {
         }
     });
 });
+
+const positiveSmiles = ['👍','👌', '😎', '😽', '👏', '💪', '💚', '🏆',  '🎉', ];
+const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', '👓', '😞', ];
 
 // MVP!!!
 

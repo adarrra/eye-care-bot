@@ -20,7 +20,8 @@
     "cron": "^1.2.1",
     "micro-bot": "^1.2.0",
     "moment-timezone": "^0.5.13",
-    "monk": "^4.0.0"
+    "monk": "^4.0.0",
+    "randray": "^2.0.0"
   },
   "engines": {
     "node": ">= 7.6.0"
