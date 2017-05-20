@@ -131,6 +131,19 @@ app.command('ls', ctx =>
     })
 );
 
+app.command('help', ctx =>
+    {
+    const helpMsg = `
+&lt;HH:MM&gt; - set notification (<em>e.g. 12:30</em> )
+/ls - list notifications and timezone
+/rm &lt;HH:MM&gt; - remove notification (<em>e.g. /rm 12:30</em> )
+/e_tz &lt;newTz&gt; - set new timezone (<em>e.g. /e_Tz Moscow</em> )
+    `
+    app.telegram.sendMessage(ctx.chat.id, helpMsg, {parse_mode: 'HTML'})
+    }
+
+);
+
 
 app.on('message', ctx => {
     users.findOne({chat_id: ctx.chat.id})
@@ -174,6 +187,7 @@ function updTz(zone, user) {
 }
 
 function setCronJob(chat_id, time, tz) {
+    // for weekdays only * * * * 1-5
     let job = new CronJob({
         cronTime: `${time.m} ${time.h} * * *`,
         onTick: function () {
@@ -202,7 +216,7 @@ function setCronJob(chat_id, time, tz) {
 // }
 
 /* TODO:
-    - beauty help and start messages
+    - show help msg on first setup
     - stop cron jobs when tz changes
     - try to deploy, check timezone correctness
     - postpone btn - done/postpone/skip
