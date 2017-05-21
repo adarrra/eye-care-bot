@@ -7,8 +7,7 @@ const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
 const monk = require('monk');
 const randray = require('randray');
-// mongoose.connect(process.env.DATABASE);
-const dbUrl = 'localhost:27017/testUsers';
+const dbUrl = process.env.MONGODB_URI;
 const db = monk(dbUrl);
 const users = db.get('users');
 
