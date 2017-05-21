@@ -242,14 +242,15 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
+    - write temp notifications to bd?
+    - underst. answerCallbackQuery - can we answer only once??
     - show help msg on first setup, commands tip with args?
     - try to deploy, check timezone correctness
     - tests espec. for e_tz
-    - write temp notifications to bd?
     - send location by btn
     - weekends settings
-    - split somehow and prettify for less spaghettiness
-    - add emojis for eternal beauty (random happy smiles on done)
+    - split somehow and prettify for less spaghettiness and better readability
+    - add emojis for eternal beauty
     - maybe work with time through moment only?
 
 */
