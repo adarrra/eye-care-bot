@@ -1,7 +1,7 @@
 // some mess with libs... microbot? What is Composer...
 
-const {Markup} = require('micro-bot');
 const Telegraf = require('telegraf');
+const {Markup} = require('telegraf');
 const msg = require('./messages');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
@@ -12,7 +12,13 @@ const db = monk(dbUrl);
 const users = db.get('users');
 
 const app = new Telegraf(process.env.BOT_TOKEN); // was const app = new Composer()
-// when to db.close()?
+const PORT = process.env.PORT || 443;
+
+app.telegram.setWebhook(`${process.env.URL}bot${process.env.BOT_TOKEN}`);
+app.startWebhook(`bot${process.env.BOT_TOKEN}`, null, PORT);
+app.telegram.getWebhookInfo().then(info => console.log('wh info: ', info))
+
+
 let cronJobHash = new Map();
 
 db.then(() => {
@@ -28,8 +34,6 @@ db.then(() => {
     });
 
 });
-
-// app.set('port', (process.env.PORT || 5000))
 
 function getJobId(chat_id, fulltime) {
     return `${chat_id}${fulltime}`;
@@ -166,7 +170,7 @@ const notifyOpts= Markup.inlineKeyboard([
         Markup.callbackButton('Done', 'onDone'),
         Markup.callbackButton('Skip', 'onSkip')
     ],
-    [   
+    [
         Markup.callbackButton('Postpone 5', 'onPostpone5'),
         Markup.callbackButton('Postpone 10', 'onPostpone10'),
         Markup.callbackButton('Postpone 30', 'onPostpone30'),
@@ -182,7 +186,6 @@ app.action(/^onPostpone/, ctx =>  {
     // the problem if script stopped it will not be triggered, write to bd?
     users.findOne({chat_id: ctx.chat.id}).then(user => {
         let time = moment().tz(user.timezone).add(minutes, 'm');
-        console.log(time);
         setCronJob(user.chat_id, time, user.timezone)
     })
 })
@@ -241,10 +244,10 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
+    - try to deploy, check timezone correctness
     - write temp notifications to bd?
     - underst. answerCallbackQuery - can we answer only once??
     - show help msg on first setup, commands tip with args?
-    - try to deploy, check timezone correctness
     - tests espec. for e_tz
     - send location by btn
     - weekends settings
