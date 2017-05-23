@@ -14,8 +14,13 @@ const users = db.get('users');
 const app = new Telegraf(process.env.BOT_TOKEN); // was const app = new Composer()
 const PORT = process.env.PORT || 443;
 
-app.telegram.setWebhook(`${process.env.URL}bot${process.env.BOT_TOKEN}`);
-app.startWebhook(`bot${process.env.BOT_TOKEN}`, null, PORT);
+//npm install -g localtunnel
+//lt --port 8443
+// https://github.com/telegraf/telegraf/blob/master/examples/webhook-bot.js
+// https://stackoverflow.com/questions/44121791/why-node-js-telegram-bot-placed-on-heroku-answer-with-403/44128359?noredirect=1#comment75278604_44128359
+// https://github.com/telegraf/telegraf/issues/44#issuecomment-269666490
+app.telegram.setWebhook('https://gmhncaeayp.localtunnel.me/secret-path');
+app.startWebhook('/secret-path', null, 8443);
 app.telegram.getWebhookInfo().then(info => console.log('wh info: ', info))
 
 
