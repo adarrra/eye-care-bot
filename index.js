@@ -2,6 +2,8 @@
 
 const Telegraf = require('telegraf');
 const {Markup} = require('telegraf');
+const express = require('express');
+const expressApp = express();
 const msg = require('./messages');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
@@ -12,17 +14,21 @@ const db = monk(dbUrl);
 const users = db.get('users');
 
 const app = new Telegraf(process.env.BOT_TOKEN); // was const app = new Composer()
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT ||8443;
 
-//npm install -g localtunnel
-//lt --port 8443
-// https://github.com/telegraf/telegraf/blob/master/examples/webhook-bot.js
-// https://stackoverflow.com/questions/44121791/why-node-js-telegram-bot-placed-on-heroku-answer-with-403/44128359?noredirect=1#comment75278604_44128359
-// https://github.com/telegraf/telegraf/issues/44#issuecomment-269666490
-app.telegram.setWebhook('https://gmhncaeayp.localtunnel.me/secret-path');
-app.startWebhook('/secret-path', null, 8443);
+app.telegram.setWebhook(`${process.env.URL}bot${process.env.BOT_TOKEN}`);
+//app.startWebhook(`bot${process.env.BOT_TOKEN}`, null, PORT);
+
+expressApp.use(app.webhookCallback(`/bot${process.env.BOT_TOKEN}`));
+
 app.telegram.getWebhookInfo().then(info => console.log('wh info: ', info))
 
+expressApp.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+expressApp.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 let cronJobHash = new Map();
 
