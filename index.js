@@ -22,7 +22,7 @@ expressApp.use(app.webhookCallback(`/bot${process.env.BOT_TOKEN}`));
 app.telegram.getWebhookInfo().then(info => console.log('wh info: ', info))
 
 expressApp.get('/', (req, res) => {
-  res.send('Hello World!');
+      res.send('Hey babe... You have nice eye color...');
 });
 expressApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -86,7 +86,7 @@ app.on('sticker', ctx => ctx.reply('👍'));
 app.hears(/(hi)|(hey)/i, ctx => ctx.reply('Hey there!'));
 
 app.command('start', ctx =>
-    ctx.reply(msg.start)
+    app.telegram.sendMessage(ctx.chat.id, msg.start, {parse_mode: 'HTML'})
 );
 
 app.command('e_tz', ctx => {
@@ -123,25 +123,22 @@ app.command('rm', ctx => {
 app.command('ls', ctx =>
     users.findOne({chat_id: ctx.chat.id}).then(user => {
         let notif = [];
+        if(!user) {
+            ctx.reply(msg.haventNotifications);
+        }
         user.notifications.forEach(time => {
             notif.push(`${time.full}`);
         });
+        if (!notif.length) {
+            ctx.reply(msg.haventNotifications);
+        }
         ctx.reply(`Your notifications: ${notif.join(', ')}. Your timezone: ${user.timezone}`)
 
     })
 );
 
-app.command('help', ctx =>
-    {
-    const helpMsg = `
-&lt;HH:MM&gt; - set notification (<em>e.g. 12:30</em> )
-/ls - list notifications and timezone
-/rm &lt;HH:MM&gt; - remove notification (<em>e.g. /rm 12:30</em> )
-/e_tz &lt;newTz&gt; - set new timezone (<em>e.g. /e_Tz Moscow</em> )
-    `
-    app.telegram.sendMessage(ctx.chat.id, helpMsg, {parse_mode: 'HTML'})
-    }
-
+app.command('help', ctx => 
+    app.telegram.sendMessage(ctx.chat.id, msg.helpMsg, {parse_mode: 'HTML'})
 );
 
 // maybe we can rm waitLocation and use some callback query?
@@ -229,7 +226,7 @@ app.on('message', ctx => {
         if (user && user.waitLocation) {
             updTz(ctx.message.text, user);
         } else {
-            ctx.reply('If you are confused type /help');
+            ctx.reply(msg.notUnderstand);
         }
     });
 });
@@ -253,13 +250,14 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
-    - try to deploy, check timezone correctness
+    - check heroku scheduler... mayb we need worker... : first bug - duplicated cronjobs... 
+    - how to dev locally... see stashed 'dev_locally'
     - write temp notifications to bd?
     - underst. answerCallbackQuery - can we answer only once??
     - show help msg on first setup, commands tip with args?
     - tests espec. for e_tz
     - send location by btn
-    - weekends settings
+    - weekends settings!
     - split somehow and prettify for less spaghettiness and better readability
     - add emojis for eternal beauty
     - maybe work with time through moment only?
