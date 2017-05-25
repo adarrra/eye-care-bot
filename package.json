@@ -19,10 +19,10 @@
   "dependencies": {
     "cron": "^1.2.1",
     "express": "^4.15.3",
-    "micro-bot": "^1.2.0",
     "moment-timezone": "^0.5.13",
     "monk": "^4.0.0",
-    "randray": "^2.0.0"
+    "randray": "^2.0.0",
+    "telegraf": "^3.7.1"
   },
   "engines": {
     "node": ">= 7.6.0"

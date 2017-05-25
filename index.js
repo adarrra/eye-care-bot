@@ -1,5 +1,3 @@
-// some mess with libs... microbot? What is Composer...
-
 const Telegraf = require('telegraf');
 const {Markup} = require('telegraf');
 const express = require('express');
@@ -13,7 +11,7 @@ const dbUrl = process.env.MONGODB_URI;
 const db = monk(dbUrl);
 const users = db.get('users');
 
-const app = new Telegraf(process.env.BOT_TOKEN); // was const app = new Composer()
+const app = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT ||8443;
 
 app.telegram.setWebhook(`${process.env.URL}bot${process.env.BOT_TOKEN}`);
