@@ -137,7 +137,7 @@ app.command('ls', ctx =>
     })
 );
 
-app.command('help', ctx => 
+app.command('help', ctx =>
     app.telegram.sendMessage(ctx.chat.id, msg.helpMsg, {parse_mode: 'HTML'})
 );
 
@@ -177,10 +177,10 @@ const notifyOpts= Markup.inlineKeyboard([
         Markup.callbackButton('Skip', 'onSkip')
     ],
     [
-        Markup.callbackButton('Postpone 5', 'onPostpone5'),
-        Markup.callbackButton('Postpone 10', 'onPostpone10'),
-        Markup.callbackButton('Postpone 30', 'onPostpone30'),
-        Markup.callbackButton('Postpone 60', 'onPostpone60'),
+        Markup.callbackButton('5 min', 'onPostpone5'),
+        Markup.callbackButton('10 min', 'onPostpone10'),
+        Markup.callbackButton('30 min', 'onPostpone30'),
+        Markup.callbackButton('50 min', 'onPostpone50'),
     ]
 ]).extra();
 
@@ -250,7 +250,7 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
-    - check heroku scheduler... mayb we need worker... : first bug - duplicated cronjobs... 
+    - check heroku scheduler... mayb we need worker... : first bug - duplicated cronjobs...
     - how to dev locally... see stashed 'dev_locally'
     - write temp notifications to bd?
     - underst. answerCallbackQuery - can we answer only once??
