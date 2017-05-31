@@ -2,14 +2,14 @@ const Telegraf = require('telegraf');
 const {Markup} = require('telegraf');
 const express = require('express');
 const expressApp = express();
-const msg = require('./messages');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
 const monk = require('monk');
-const randray = require('randray');
 const dbUrl = process.env.MONGODB_URI;
 const db = monk(dbUrl);
 const users = db.get('users');
+const randray = require('randray');
+const msg = require('./messages');
 
 const app = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT ||8443;
