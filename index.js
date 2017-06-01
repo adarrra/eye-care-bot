@@ -249,17 +249,14 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
-    - check heroku scheduler... mayb we need worker... : first bug - duplicated cronjobs...
-    - how to dev locally... see stashed 'dev_locally'
-    - write temp notifications to bd?
+    - if scheduler work - merge
     - underst. answerCallbackQuery - can we answer only once??
-    - show help msg on first setup, commands tip with args?
-    - tests espec. for e_tz
-    - send location by btn
     - weekends settings!
     - split somehow and prettify for less spaghettiness and better readability
+    - write temp notifications to bd??
+    - tests espec. for e_tz
+    - send location by btn
     - add emojis for eternal beauty
-    - maybe work with time through moment only?
 
 */
 
