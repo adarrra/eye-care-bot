@@ -1,4 +1,5 @@
 //every ten minutes check - are some notifications in next 10 min
+// playground: https://repl.it/I1Hz/2
 
 const pinger = require('express-ping');
 const express = require('express');
@@ -22,10 +23,17 @@ db.then(() => {
 });
 
 function isInNext10Min(time, tz, close) {
+    // moment.tz.setDefault("UTC");
     console.log(time);
-    let notif = moment(time, 'hh:mm').tz(tz);
     let now = moment.utc();
-    let next10min = moment.utc().add(10, 'm');
+    console.log('now utc:', now);
+    let notif = moment.utc(moment.tz(time, 'hh:mm', tz));
+    console.log('from db utc: ', notif);
+    let next10min = now.add(10, 'm');
+    console.log('next10', next10min);
+    console.log('is btw: ', now.isBetween(now, next10min));
+    console.log('is before +10: ', notif.isBefore(next10min));
+    console.log('is after now: ', notif.isAfter(now.format()));
     if (notif.isBetween(now, next10min)) {
         console.log('I found - call pinger');
         pingToWakeUp()
