@@ -17,7 +17,7 @@ db.then(() => {
         });
     }).then(() => {
         console.log('we go to exit');
-        process.exit()
+        // process.exit()
     });
 
 });
@@ -28,18 +28,19 @@ function isInNext10Min(time, timezone, close) {
     const now = moment.utc();
     const notif = moment.utc(moment.tz(time, 'hh:mm', timezone));
     const next10min = moment.utc().add(10, 'm');
-    console.log('is btw: ', now.isBetween(now, next10min));
-    console.log('is before +10: ', notif.isBefore(next10min));
-    console.log('is after now: ', notif.isAfter(now.format()));
+    // console.log('is btw: ', now.isBetween(now, next10min));
+    // console.log('is before +10: ', notif.isBefore(next10min));
+    // console.log('is after now: ', notif.isAfter(now.format()));
     if (notif.isBetween(now, next10min)) {
         console.log('I found - call pinger');
         pingToWakeUp()
+        close()
     }
 }
 
 function pingToWakeUp() {
     console.log('i am pinger');
     requestify.get(process.env.URL).then(function(response) {
-        console.log(response.getBody());
+        console.log('resp: ', response.getBody());
     });
 }
