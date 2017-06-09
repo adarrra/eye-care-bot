@@ -39,7 +39,7 @@ db.then(() => {
             setCronJob(user.chat_id, time, user.timezone);
         });
     }).then(() => {
-        console.log('hope it is setted');
+        console.log('hope it is set');
     });
 
 });
@@ -62,7 +62,7 @@ app.hears(/^\d\d/, ctx => {
                         return ctx.reply(msg.askLocation);
                     } else {
                         setCronJob(ctx.chat.id, timeObj, user.timezone);
-                        ctx.reply(`${timeObj.full} setted`);
+                        ctx.reply(`${timeObj.full} set`);
                     }
                 })
             } else {
@@ -159,8 +159,8 @@ function updTz(zone, user) {
             }
         )
         .then(result => {
-            let resMsg = result.nModified ? `${tz} setted` : 'Ops! Something went wrong';
-            app.telegram.sendMessage(user.chat_id, `${tz} setted`);
+            let resMsg = result.nModified ? `${tz} set` : 'Ops! Something went wrong';
+            app.telegram.sendMessage(user.chat_id, `${tz} set`);
             user.notifications.forEach(time => {
                 stopJob(user.chat_id, time.full);
                 setCronJob(user.chat_id, time, tz);

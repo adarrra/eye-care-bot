@@ -12,7 +12,7 @@ ${helpMsg}
 So... What time do you prefer for eye exercises?
 Don't forget to use format HH:MM e.g. 15:30`
 
-const askLocation = `Time setted! Last question: your city (for proper timezone) e.g. 'Minsk'`
+const askLocation = `Time set! Last question: your city (for proper timezone) e.g. 'Minsk'`
 
 const cantRecongnizeTime = `'Oh no! I can't recognize time. Please check format  HH:MM e.g. 06:30 or 18:00'`
 
