@@ -179,7 +179,7 @@ const notifyOpts= Markup.inlineKeyboard([
     [
         Markup.callbackButton('Postpone 5 min', 'onPostpone5'),
         Markup.callbackButton('10 min', 'onPostpone10'),
-        Markup.callbackButton('30 min', 'onPostpone30'),
+        Markup.callbackButton('30 min', 'onPostpone29'),
     ]
 ]).extra();
 
@@ -192,6 +192,7 @@ app.action(/^onPostpone/, ctx =>  {
     users.findOne({chat_id: ctx.chat.id}).then(user => {
         let time = moment().tz(user.timezone).add(minutes, 'm');
         setCronJob(user.chat_id, time, user.timezone)
+        app.telegram.sendMessage(ctx.chat.id, `Postponed on ${minutes} min`);
     })
 })
 
@@ -249,7 +250,6 @@ const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', 
 // }
 
 /* TODO:
-    - if scheduler work - merge
     - underst. answerCallbackQuery - can we answer only once??
     - weekends settings!
     - split somehow and prettify for less spaghettiness and better readability
