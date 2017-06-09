@@ -9,17 +9,25 @@ const db = monk(dbUrl);
 const users = db.get('users');
 const moment = require('moment-timezone');
 
+let found = false;
+
 db.then(() => {
     console.log('schedule checker connected with db');
     users.find({}).each((user, {close, pause, resume}) => {
-        let found = user.notifications.some(time => {
-            return isInNext10Min(time.full, user.timezone, close)
+        found = user.notifications.some(time => {
+            return isInNext10Min(time.full, user.timezone)
         });
-        if (!found) {
+        if (found) {
+            console.log('ok you found so I close stream');
+            close();
+        }
+    }).then(() => {
+        if(!found){
             console.log('not found, we go to exit');
             process.exit();
         }
-    }).catch(() => {
+    })
+    .catch(() => {
         console.log('error, we go to exit');
         process.exit()
     });
@@ -33,7 +41,6 @@ function isInNext10Min(time, timezone, close) {
     const next10min = moment.utc().add(10, 'm');
     if (notif.isBetween(now, next10min)) {
         console.log('I found - call pinger');
-        close()
         pingToWakeUp()
         return true;
     }
