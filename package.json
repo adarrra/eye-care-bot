@@ -12,10 +12,15 @@
     "telegram",
     "eyes",
     "exercise",
-    "health"
+    "health",
+    "schedule"
   ],
   "author": "Adara Belaya",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adarrra/eye-care-bot.git"
+  },
   "dependencies": {
     "cron": "^1.2.1",
     "express": "^4.15.3",
@@ -27,5 +32,10 @@
   },
   "engines": {
     "node": ">= 7.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.3.0"
   }
 }
