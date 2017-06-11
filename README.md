@@ -1,7 +1,7 @@
 # eye-care-bot
 WIP
 
-Eye-care telegram bot built with [Telegraph](https://github.com/telegraf/telegraf) and [Nodejs](https://nodejs.org/en/).  
+Eye-care telegram bot built with [Telegraf](https://github.com/telegraf/telegraf) and [Nodejs](https://nodejs.org/en/).  
 It will send you daily reminders about eyes exercise.
 
 # How to use
