@@ -24,7 +24,10 @@ const notUnderstand = 'I don\'t understand you :( You can try /help to list avai
 
 const oops = 'Ops! Something went wrong';
 
-const notif = 'Let\'s do some eyes exercises!';
+const notif = `Let's do some eyes exercises!
+
+Postpone it for:
+`;
 
 
 module.exports = {

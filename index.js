@@ -16,13 +16,13 @@ const PORT = process.env.PORT || 8443;
 
 const notifyOpts = Markup.inlineKeyboard([
     [
-        Markup.callbackButton('Done', 'onDone'),
-        Markup.callbackButton('Skip', 'onSkip'),
-    ],
-    [
-        Markup.callbackButton('Postpone 5 min', 'onPostpone5'),
+        Markup.callbackButton('5 min', 'onPostpone5'),
         Markup.callbackButton('10 min', 'onPostpone10'),
         Markup.callbackButton('30 min', 'onPostpone29'),
+    ],
+    [
+        Markup.callbackButton('Done', 'onDone'),
+        Markup.callbackButton('Skip', 'onSkip'),
     ],
 ]).extra();
 
