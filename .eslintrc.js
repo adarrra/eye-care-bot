@@ -19,5 +19,6 @@ module.exports = {
         'consistent-return': [OFF],
         'no-use-before-define': ["error", { "functions": false, "classes": true }],
         'import/newline-after-import': [OFF],
+        'arrow-parens': [OFF]
     }
 }    

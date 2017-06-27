@@ -24,7 +24,8 @@ const notifyOpts = Markup.inlineKeyboard([
         Markup.callbackButton('Done', 'onDone'),
         Markup.callbackButton('Skip', 'onSkip'),
     ],
-]).extra();
+])
+.extra();
 
 const positiveSmiles = ['👍', '👌', '😎', '😽', '👏', '💪', '💚', '🏆', '🎉'];
 const negativeSmiles = ['😢', '😒', '😫', '😩', '😠', '🙁', '😿', '👓', '😞'];
@@ -148,14 +149,21 @@ app.command('help', ctx =>
 );
 
 
-app.action('onDone', ctx => ctx.reply(randray(positiveSmiles)));
-app.action('onSkip', ctx => ctx.reply(randray(negativeSmiles)));
+app.action('onDone', ctx => {
+    ctx.reply(randray(positiveSmiles));
+    ctx.deleteMessage();
+});
+app.action('onSkip', ctx => {
+    ctx.reply(randray(negativeSmiles));
+    ctx.deleteMessage();
+});
 app.action(/^onPostpone/, (ctx) => {
     const minutes = parseInt(ctx.callbackQuery.data.match(/\d+/)[0], 10);
     users.findOne({ chat_id: ctx.chat.id }).then((user) => {
         const time = moment().tz(user.timezone).add(minutes, 'm');
         setCronJob(user.chat_id, time, user.timezone);
         app.telegram.sendMessage(ctx.chat.id, `Postponed on ${minutes} min`);
+        ctx.deleteMessage();
     });
 });
 
