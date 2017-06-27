@@ -18,6 +18,7 @@ const notifyOpts = Markup.inlineKeyboard([
     [
         Markup.callbackButton('5 min', 'onPostpone5'),
         Markup.callbackButton('10 min', 'onPostpone10'),
+        // hack cause dynos will sleep after 30 minutes
         Markup.callbackButton('30 min', 'onPostpone29'),
     ],
     [
@@ -218,7 +219,7 @@ function stopJob(chat_id, fulltime) {
 
 function setCronJob(chat_id, time, tz) {
     // for weekdays only * * * * 1-5
-    const cronTime = moment.isMoment(time) ? time.toDate() : `${time.m} ${time.h} * * *`;
+    const cronTime = moment.isMoment(time) ? time.toDate() : `${time.m} ${time.h} * * 1-5`;
     const job = new CronJob({
         cronTime,
         onTick() {
@@ -247,14 +248,13 @@ function setCronJob(chat_id, time, tz) {
 // }
 
 /* TODO:
-    - underst. answerCallbackQuery - can we answer only once??
-    - weekends settings!
-    - maybe add smth like 'rm all'
+    - maybe add smth like 'rm all'??
     - split somehow and prettify for less spaghettiness and better readability
     - write temp notifications to bd??
     - tests espec. for e_tz
-    - send location by btn
+    - send location by btn eg https://github.com/telegraf/telegraf/blob/develop/examples/keyboard-bot.js
     - add emojis for eternal beauty
+    - add some beautiful gif to readme mayb?
 
 */
 
