@@ -12,7 +12,7 @@ ${helpMsg}
 So... What time do you prefer for eye exercises?
 Don't forget to use format HH:MM e.g. 15:30`;
 
-const askLocation = 'Time set! Last question: your city (for proper timezone) e.g. \'Minsk\'';
+const askLocation = 'Time set! And the last. I should figure out timezone from your location. Please type your city name e.g. \'Minsk\'';
 
 const cantRecongnizeTime = '\'Oh no! I can\'t recognize time. Please check format  HH:MM e.g. 06:30 or 18:00\'';
 
@@ -24,12 +24,25 @@ const notUnderstand = 'I don\'t understand you :( You can try /help to list avai
 
 const oops = 'Ops! Something went wrong';
 
-const notif = `Let's do some eyes exercises!
+const notifShort = 'Let\'s do some eyes exercises!';
+
+const notif =
+`${notifShort}
 
 Postpone it for:
 `;
-const notifShort = 'Let\'s do some eyes exercises!';
 
+const skipped =
+`${notifShort}
+
+Skipped...
+`;
+
+const done =
+`${notifShort}
+
+Done!
+`;
 
 module.exports = {
     start,
@@ -42,4 +55,6 @@ module.exports = {
     notif,
     notUnderstand,
     notifShort,
+    skipped,
+    done,
 };

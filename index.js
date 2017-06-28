@@ -151,13 +151,11 @@ app.command('help', ctx =>
 
 
 app.action('onDone', ctx => {
-    ctx.editMessageText(`${msg.notifShort} 
-        Done!`);
+    ctx.editMessageText(msg.done);
     ctx.reply(randray(positiveSmiles));
 });
 app.action('onSkip', ctx => {
-    ctx.editMessageText(`${msg.notifShort} 
-        Skipped...`);
+    ctx.editMessageText(msg.skipped);
     ctx.reply(randray(negativeSmiles));
 });
 app.action(/^onPostpone/, (ctx) => {
