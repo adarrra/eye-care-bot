@@ -151,20 +151,22 @@ app.command('help', ctx =>
 
 
 app.action('onDone', ctx => {
+    ctx.editMessageText(`${msg.notifShort} 
+        Done!`);
     ctx.reply(randray(positiveSmiles));
-    ctx.deleteMessage();
 });
 app.action('onSkip', ctx => {
+    ctx.editMessageText(`${msg.notifShort} 
+        Skipped...`);
     ctx.reply(randray(negativeSmiles));
-    ctx.deleteMessage();
 });
 app.action(/^onPostpone/, (ctx) => {
     const minutes = parseInt(ctx.callbackQuery.data.match(/\d+/)[0], 10);
     users.findOne({ chat_id: ctx.chat.id }).then((user) => {
         const time = moment().tz(user.timezone).add(minutes, 'm');
         setCronJob(user.chat_id, time, user.timezone);
+        ctx.editMessageText(`${msg.notifShort}`);
         app.telegram.sendMessage(ctx.chat.id, `Postponed on ${minutes} min`);
-        ctx.deleteMessage();
     });
 });
 

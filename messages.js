@@ -28,6 +28,7 @@ const notif = `Let's do some eyes exercises!
 
 Postpone it for:
 `;
+const notifShort = 'Let\'s do some eyes exercises!';
 
 
 module.exports = {
@@ -40,4 +41,5 @@ module.exports = {
     oops,
     notif,
     notUnderstand,
+    notifShort,
 };
