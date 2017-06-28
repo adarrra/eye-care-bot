@@ -6,7 +6,8 @@ This bot will help  you to **schedule daily weekday reminders** about eyes exerc
 It's minimalistic, without any clatter. If you want more, feel free to create issue-feature request :)
 
 # How to use
-1) Paste **eye_care_bot** in your [Telegram client](https://telegram.org/) search input field
+1) You can install it from [here](https://storebot.me/bot/eye_care_bot)  
+OR paste **eye_care_bot** in your [Telegram client](https://telegram.org/) search input field  
 2) press /start
 3) Use some of this commands:
 ```
