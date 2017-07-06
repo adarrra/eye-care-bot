@@ -164,7 +164,7 @@ app.action(/^onPostpone/, (ctx) => {
         const time = moment().tz(user.timezone).add(minutes, 'm');
         setCronJob(user.chat_id, time, user.timezone);
         ctx.editMessageText(`${msg.notifShort}`);
-        app.telegram.sendMessage(ctx.chat.id, `Postponed on ${minutes} min`);
+        app.telegram.sendMessage(ctx.chat.id, `Postponed for ${minutes} min`);
     });
 });
 
@@ -255,6 +255,7 @@ function setCronJob(chat_id, time, tz) {
     - send location by btn eg https://github.com/telegraf/telegraf/blob/develop/examples/keyboard-bot.js
     - add emojis for eternal beauty
     - add some beautiful gif to readme mayb?
+    - add some default exercises
 
 */
 
